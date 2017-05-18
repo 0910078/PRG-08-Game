@@ -20,3 +20,15 @@ container {
     transform: translate(-50%, -50%);
     overflow:hidden;
 }
+
+grass {
+    background-image: url(../images/map_1.png);
+    width: 800px;
+    height: 600px;
+}
+
+castle {
+    background-image: url(../images/castle_1.png);
+    width: 800px;
+    height: 64px;
+}
