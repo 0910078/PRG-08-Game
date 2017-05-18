@@ -1,13 +1,10 @@
-/// <reference path="message.ts"/>
-
-class Main {
+class Game {
     constructor() {
-       let mOne:Message = new Message("Hello");
-       let mTwo:Message = new Message("World");
+
     }
 } 
 
-// hier starten we de applicatie
+//load
 window.addEventListener("load", function() {
-    new Main();
+    let g:Game = new Game();
 });

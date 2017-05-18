@@ -5,13 +5,3 @@ body {
     margin:0px; padding:20px;
     background-color:#ccc;
 }
-
-message {
-    display: block;
-    width:50%;
-    padding:10px; 
-    margin-left: auto; margin-right: auto;
-    margin-top:10px; margin-bottom:10px;
-    background-color:white;
-    border-radius: 8px;
-}
