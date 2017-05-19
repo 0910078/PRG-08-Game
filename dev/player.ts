@@ -7,10 +7,18 @@ class Player extends Entity {
     public damage: number;
     public shootingSpeed: number;
     public arrows: Array<Arrow>;
+    public width: number;
+    public height: number;
+
+    public callback: EventListener;
 
     constructor(x:number,y:number){
         super(x,y);
         this.speed = 5;
+        this.shootingSpeed = 10;
+        this.arrows = [];
+        this.width = 32;
+        this.height = 32;
 
         let container: HTMLElement = document.getElementById("container");
 
@@ -18,8 +26,9 @@ class Player extends Entity {
         container.appendChild(this.div);
 
         //add event listeners for moving and shooting
-        window.addEventListener("keydown", (e:KeyboardEvent) => this.onKeyDown(e));
-        window.addEventListener("keyup", (e:KeyboardEvent) => this.onKeyUp(e));
+        this.callback = (e:KeyboardEvent) => this.onKeyDown(e);
+        window.addEventListener("keydown", this.callback);
+        window.addEventListener("keyup", (e:KeyboardEvent) => this.state.onKeyUp(e));
 
         //set player state to default
         this.state = new Idle(this);
@@ -27,21 +36,14 @@ class Player extends Entity {
 
     //handle user input for the player
     onKeyDown(e:KeyboardEvent){
-        if(e.keyCode == 37){
-            this.state = new MoveLeft(this);
+        if(e.keyCode === 37){
+            this.state.onMoveLeft();
         }
-        else if(e.keyCode == 39){
-            this.state = new MoveRight(this);
+        if(e.keyCode === 39){
+            this.state.onMoveRight();
         }
-    }
-
-    //handle user input for the player
-    onKeyUp(e:KeyboardEvent){
-        if(e.keyCode == 37){
-            this.state = new Idle(this);
-        }
-        else if(e.keyCode == 39){
-            this.state = new Idle(this);
+        if(e.keyCode === 32){
+            this.state.onFire();
         }
     }
 

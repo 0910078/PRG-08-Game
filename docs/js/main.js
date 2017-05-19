@@ -16,8 +16,20 @@ var Arrow = (function (_super) {
     __extends(Arrow, _super);
     function Arrow(x, y, s) {
         _super.call(this, x, y);
+        this.x = x;
+        this.y = y;
         this.shootingSpeed = s;
+        var container = document.getElementById("container");
+        this.div = document.createElement("arrow");
+        container.appendChild(this.div);
+        this.div.style.transform = "translate(" + this.x + "px," + this.y + "px)";
     }
+    Arrow.prototype.update = function () {
+        this.y -= this.shootingSpeed;
+    };
+    Arrow.prototype.draw = function () {
+        this.div.style.transform = "translate(" + this.x + "px," + this.y + "px)";
+    };
     return Arrow;
 }(GameObject));
 var Castle = (function (_super) {
@@ -48,16 +60,34 @@ var Enemy = (function (_super) {
 var Firing = (function () {
     function Firing(p) {
         this.player = p;
+        this.cooldown = 10;
+        this.timer = 5;
+        this.width = 8;
+        this.height = 32;
     }
     Firing.prototype.action = function () {
-        this.player.arrows.push(new Arrow(this.player.x, this.player.y, this.player.
-            shootingSpeed));
+        this.timer++;
+        if (this.timer >= this.cooldown) {
+            this.timer = 0;
+            this.player.arrows.push(new Arrow(this.player.x + this.player.width / 2 - this.width / 2, this.player.y - this.player.height, this.player.shootingSpeed));
+        }
     };
     Firing.prototype.onFire = function () {
     };
     Firing.prototype.onMoveLeft = function () {
+        if (this.player.x > 32) {
+            this.player.x -= this.player.speed * 2;
+        }
     };
     Firing.prototype.onMoveRight = function () {
+        if (this.player.x < 736) {
+            this.player.x += this.player.speed * 2;
+        }
+    };
+    Firing.prototype.onKeyUp = function (e) {
+        if (e.keyCode === 32) {
+            this.player.state = new Idle(this.player);
+        }
     };
     return Firing;
 }());
@@ -87,6 +117,10 @@ var Game = (function () {
         this.player.update();
         this.player.draw();
         requestAnimationFrame(function () { return _this.gameLoop(); });
+        for (var i = 0; i < this.player.arrows.length; i++) {
+            this.player.arrows[i].update();
+            this.player.arrows[i].draw();
+        }
     };
     return Game;
 }());
@@ -108,37 +142,68 @@ var Idle = (function () {
     Idle.prototype.onMoveRight = function () {
         this.player.state = new MoveRight(this.player);
     };
+    Idle.prototype.onKeyUp = function (e) {
+    };
     return Idle;
 }());
 var MoveLeft = (function () {
     function MoveLeft(p) {
         this.player = p;
+        this.cooldown = 4;
+        this.timer = 2;
     }
     MoveLeft.prototype.action = function () {
-        this.player.x -= this.player.speed;
+        if (this.player.x > 32) {
+            this.player.x -= this.player.speed;
+        }
     };
     MoveLeft.prototype.onFire = function () {
+        this.timer++;
+        if (this.timer >= this.cooldown) {
+            this.timer = 0;
+            this.player.arrows.push(new Arrow(this.player.x + this.player.width / 2 - 2, this.player.y - this.player.height, this.player.shootingSpeed));
+        }
     };
     MoveLeft.prototype.onMoveLeft = function () {
-        this.player.state = new MoveRight(this.player);
     };
     MoveLeft.prototype.onMoveRight = function () {
+        this.player.state = new MoveRight(this.player);
+    };
+    MoveLeft.prototype.onKeyUp = function (e) {
+        if (e.keyCode === 37) {
+            this.player.state = new Idle(this.player);
+        }
     };
     return MoveLeft;
 }());
 var MoveRight = (function () {
     function MoveRight(p) {
         this.player = p;
+        this.cooldown = 4;
+        this.timer = 2;
     }
     MoveRight.prototype.action = function () {
-        this.player.x += this.player.speed;
+        if (this.player.x < 736) {
+            this.player.x += this.player.speed;
+        }
     };
     MoveRight.prototype.onFire = function () {
+        this.timer++;
+        console.log(this.timer);
+        if (this.timer >= this.cooldown) {
+            this.timer = 0;
+            this.player.arrows.push(new Arrow(this.player.x + this.player.width / 2 - 2, this.player.y - this.player.height, this.player.shootingSpeed));
+        }
     };
     MoveRight.prototype.onMoveLeft = function () {
         this.player.state = new MoveLeft(this.player);
     };
     MoveRight.prototype.onMoveRight = function () {
+    };
+    MoveRight.prototype.onKeyUp = function (e) {
+        if (e.keyCode === 39) {
+            this.player.state = new Idle(this.player);
+        }
     };
     return MoveRight;
 }());
@@ -148,27 +213,27 @@ var Player = (function (_super) {
         var _this = this;
         _super.call(this, x, y);
         this.speed = 5;
+        this.shootingSpeed = 10;
+        this.arrows = [];
+        this.width = 32;
+        this.height = 32;
         var container = document.getElementById("container");
         this.div = document.createElement("player");
         container.appendChild(this.div);
-        window.addEventListener("keydown", function (e) { return _this.onKeyDown(e); });
-        window.addEventListener("keyup", function (e) { return _this.onKeyUp(e); });
+        this.callback = function (e) { return _this.onKeyDown(e); };
+        window.addEventListener("keydown", this.callback);
+        window.addEventListener("keyup", function (e) { return _this.state.onKeyUp(e); });
         this.state = new Idle(this);
     }
     Player.prototype.onKeyDown = function (e) {
-        if (e.keyCode == 37) {
-            this.state = new MoveLeft(this);
+        if (e.keyCode === 37) {
+            this.state.onMoveLeft();
         }
-        else if (e.keyCode == 39) {
-            this.state = new MoveRight(this);
+        if (e.keyCode === 39) {
+            this.state.onMoveRight();
         }
-    };
-    Player.prototype.onKeyUp = function (e) {
-        if (e.keyCode == 37) {
-            this.state = new Idle(this);
-        }
-        else if (e.keyCode == 39) {
-            this.state = new Idle(this);
+        if (e.keyCode === 32) {
+            this.state.onFire();
         }
     };
     Player.prototype.update = function () {

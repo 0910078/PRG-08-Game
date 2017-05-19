@@ -1,3 +1,6 @@
+/// <reference path="arrow.ts" />
+
+
 class Game {
     public static instance:Game;
     private static gameWidth: number;
@@ -44,6 +47,11 @@ class Game {
         this.player.draw();
 
         requestAnimationFrame(() => this.gameLoop());
+
+        for(let i = 0; i < this.player.arrows.length; i++){
+            this.player.arrows[i].update();
+            this.player.arrows[i].draw();
+        }
     }
 } 
 

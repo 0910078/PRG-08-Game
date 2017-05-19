@@ -4,4 +4,5 @@ interface PlayerState{
     onFire():void;
     onMoveLeft():void;
     onMoveRight():void;
+    onKeyUp(e:KeyboardEvent):void;
 }

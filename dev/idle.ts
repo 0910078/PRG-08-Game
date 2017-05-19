@@ -6,7 +6,7 @@ class Idle implements PlayerState{
     }
 
     action(){
-        //fire an arrow
+        
     }
 
     onFire(){
@@ -19,5 +19,10 @@ class Idle implements PlayerState{
 
     onMoveRight(){
         this.player.state = new MoveRight(this.player);
+    }
+
+    //handle user input for the player
+    onKeyUp(e:KeyboardEvent){
+
     }
 }
