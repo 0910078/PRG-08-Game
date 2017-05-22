@@ -2,6 +2,8 @@ class GameObject {
 
     x:number;
     y:number;
+    width:number;
+    height:number;
 
     div:HTMLElement;
 
