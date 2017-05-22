@@ -1,12 +1,12 @@
 Welcome!
 
-Dit is een spel waarbij je je kasteel moet verdedigen tegen de ridders die op het kasteel af komen.
+The aim of the game is to defend the castle from attacking enemies.
 
-Besturing:
+Controls:
 
-Gebruik pijltjes naar links en naar rechts om je horizontaal te verplaatsen.
-Gebruik spatie om pijlen af te vuren.
+Use the arrow keys to move left and right.
+Use the spacebar to fire arrows.
 
-Om te spelen ga naar:
+To play the game go to:
 
 https://0910078.github.io/PRG-08-Game/
