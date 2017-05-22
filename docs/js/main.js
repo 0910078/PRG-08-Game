@@ -10,6 +10,8 @@ var GameObject = (function () {
     }
     GameObject.prototype.draw = function () {
     };
+    GameObject.prototype.update = function () {
+    };
     return GameObject;
 }());
 var Arrow = (function (_super) {
@@ -52,9 +54,31 @@ var Entity = (function (_super) {
 }(GameObject));
 var Enemy = (function (_super) {
     __extends(Enemy, _super);
-    function Enemy() {
-        _super.apply(this, arguments);
+    function Enemy(x, y) {
+        _super.call(this, x, y);
+        this.speed = 2;
+        this.damage = 5;
+        this.health = 50;
+        this.x = Math.floor((Math.random() * 732) + 32);
+        this.y = -32;
+        var container = document.getElementById("container");
+        this.div = document.createElement("blackknight");
+        container.appendChild(this.div);
+        this.div.style.transform = "translate(" + this.x + "px," + this.y + "px)";
     }
+    Enemy.prototype.update = function () {
+        if (this.y < 534) {
+            this.y += this.speed;
+        }
+        else {
+            this.attack();
+        }
+    };
+    Enemy.prototype.draw = function () {
+        this.div.style.transform = "translate(" + this.x + "px," + this.y + "px)";
+    };
+    Enemy.prototype.attack = function () {
+    };
     return Enemy;
 }(Entity));
 var Firing = (function () {
@@ -96,14 +120,15 @@ var Game = (function () {
         var _this = this;
         Game.gameWidth = 800;
         Game.gameHeigt = 600;
+        this.spawnTimer = 0;
+        this.spawnCooldown = 300;
         this.castle = new Castle(0, 536);
         this.playerHeight = 32;
         this.playerWidth = 32;
         this.playerX = Game.gameWidth / 2 - this.playerWidth / 2;
         this.playerY = Game.gameHeigt - this.playerHeight;
         this.player = new Player(this.playerX, this.playerY);
-        this.enemy = new Enemy(0, 0);
-        console.log("de game is gestart!");
+        this.enemies = [];
         requestAnimationFrame(function () { return _this.gameLoop(); });
     }
     Game.getInstance = function () {
@@ -116,11 +141,33 @@ var Game = (function () {
         var _this = this;
         this.player.update();
         this.player.draw();
-        requestAnimationFrame(function () { return _this.gameLoop(); });
+        this.spawnTimer++;
         for (var i = 0; i < this.player.arrows.length; i++) {
             this.player.arrows[i].update();
             this.player.arrows[i].draw();
+            for (var n = 0; n < this.enemies.length; n++) {
+                if (Util.checkCollision(this.player.arrows[i], this.enemies[n])) {
+                    this.enemies[n].health -= this.player.damage;
+                    console.log(this.enemies[n].health);
+                }
+            }
+            if (this.player.arrows[i].y < -32) {
+                this.player.arrows[i].div.remove();
+                var s = this.player.arrows.indexOf(this.player.arrows[i]);
+                if (i != -1) {
+                    this.player.arrows.splice(s, 1);
+                }
+            }
         }
+        for (var i = 0; i < this.enemies.length; i++) {
+            this.enemies[i].update();
+            this.enemies[i].draw();
+        }
+        if (this.spawnTimer > this.spawnCooldown) {
+            this.enemies.push(new Enemy(0, 0));
+            this.spawnTimer = 0;
+        }
+        requestAnimationFrame(function () { return _this.gameLoop(); });
     };
     return Game;
 }());
@@ -244,4 +291,15 @@ var Player = (function (_super) {
     };
     return Player;
 }(Entity));
+var Util = (function () {
+    function Util() {
+    }
+    Util.checkCollision = function (go1, go2) {
+        return (go1.x < go2.x + go2.width &&
+            go1.x + go1.width > go2.x &&
+            go1.y < go2.y + go2.height &&
+            go1.height + go1.y > go2.y);
+    };
+    return Util;
+}());
 //# sourceMappingURL=main.js.map

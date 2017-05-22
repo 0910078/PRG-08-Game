@@ -44,3 +44,9 @@ arrow {
     width: 4px;
     height: 32px;
 }
+
+blackknight {
+    background-image: url(../images/black_knight_default.png);
+    width: 32px;
+    height: 32px;
+}

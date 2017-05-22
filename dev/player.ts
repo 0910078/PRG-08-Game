@@ -2,13 +2,9 @@
 
 class Player extends Entity {
 
-    public speed:number;
     public state:PlayerState;
-    public damage: number;
     public shootingSpeed: number;
     public arrows: Array<Arrow>;
-    public width: number;
-    public height: number;
 
     public callback: EventListener;
 

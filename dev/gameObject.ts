@@ -15,4 +15,8 @@ class GameObject {
     draw(){
         
     }
+
+    update(){
+        
+    }
 }
