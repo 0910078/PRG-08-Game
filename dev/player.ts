@@ -26,7 +26,7 @@ class Player extends Entity {
         //add event listeners for moving and shooting
         this.callback = (e:KeyboardEvent) => this.onKeyDown(e);
         window.addEventListener("keydown", this.callback);
-        window.addEventListener("keyup", (e:KeyboardEvent) => this.state.onKeyUp(e));
+        window.addEventListener("keyup", (e:KeyboardEvent) => this.onKeyUp(e));
 
         //set player state to default
         this.state = new Idle(this);
@@ -35,14 +35,18 @@ class Player extends Entity {
     //handle user input for the player
     onKeyDown(e:KeyboardEvent){
         if(e.keyCode === 37){
-            this.state.onMoveLeft();
+            this.state = new MoveLeft(this);
         }
         if(e.keyCode === 39){
-            this.state.onMoveRight();
+            this.state = new MoveRight(this);
         }
         if(e.keyCode === 32){
-            this.state.onFire();
+            this.state = new Firing(this);
         }
+    }
+
+    onKeyUp(e:KeyboardEvent){
+        this.state = new Idle(this);
     }
 
     //update player behaviour
