@@ -1,8 +1,8 @@
 class Util {
-    public static checkCollision(go1:GameObject, go2:GameObject):boolean {
-        return (go1.x < go2.x + go2.width &&
-                go1.x + go1.width > go2.x &&
-                go1.y < go2.y + go2.height &&
-                go1.height + go1.y > go2.y)
+    public static checkCollision(obj1:GameObject, obj2:GameObject):boolean {
+        return (obj1.x < obj2.x + obj2.width &&
+                obj1.x + obj1.width > obj2.x &&
+                obj1.y < obj2.y + obj2.height &&
+                obj1.height + obj1.y > obj2.y)
     }
 }

@@ -13,6 +13,8 @@ class Player extends Entity {
         this.speed = 5;
         this.shootingSpeed = 10;
         this.arrows = [];
+        this.damage = 10;
+
         this.width = 32;
         this.height = 32;
 

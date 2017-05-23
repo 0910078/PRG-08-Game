@@ -5,6 +5,9 @@ class Enemy extends Entity{
     constructor(x:number,y:number){
         super(x,y);
 
+        this.width = 32;
+        this.height = 32;
+
         this.speed = 2;
         this.damage = 5;
         this.health = 50;

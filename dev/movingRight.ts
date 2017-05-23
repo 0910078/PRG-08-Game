@@ -20,7 +20,6 @@ class MoveRight implements PlayerState{
     onFire(){
         //fire an arrow
         this.timer++;
-        console.log(this.timer);
 
         if (this.timer >= this.cooldown){
             //reset timer

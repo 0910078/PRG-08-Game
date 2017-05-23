@@ -20,6 +20,8 @@ var Arrow = (function (_super) {
         _super.call(this, x, y);
         this.x = x;
         this.y = y;
+        this.width = 4;
+        this.height = 32;
         this.shootingSpeed = s;
         var container = document.getElementById("container");
         this.div = document.createElement("arrow");
@@ -56,6 +58,8 @@ var Enemy = (function (_super) {
     __extends(Enemy, _super);
     function Enemy(x, y) {
         _super.call(this, x, y);
+        this.width = 32;
+        this.height = 32;
         this.speed = 2;
         this.damage = 5;
         this.health = 50;
@@ -115,6 +119,17 @@ var Firing = (function () {
     };
     return Firing;
 }());
+var Util = (function () {
+    function Util() {
+    }
+    Util.checkCollision = function (obj1, obj2) {
+        return (obj1.x < obj2.x + obj2.width &&
+            obj1.x + obj1.width > obj2.x &&
+            obj1.y < obj2.y + obj2.height &&
+            obj1.height + obj1.y > obj2.y);
+    };
+    return Util;
+}());
 var Game = (function () {
     function Game() {
         var _this = this;
@@ -145,17 +160,32 @@ var Game = (function () {
         for (var i = 0; i < this.player.arrows.length; i++) {
             this.player.arrows[i].update();
             this.player.arrows[i].draw();
-            for (var n = 0; n < this.enemies.length; n++) {
-                if (Util.checkCollision(this.player.arrows[i], this.enemies[n])) {
-                    this.enemies[n].health -= this.player.damage;
-                    console.log(this.enemies[n].health);
-                }
-            }
             if (this.player.arrows[i].y < -32) {
                 this.player.arrows[i].div.remove();
                 var s = this.player.arrows.indexOf(this.player.arrows[i]);
                 if (i != -1) {
                     this.player.arrows.splice(s, 1);
+                }
+            }
+            for (var n = 0; n < this.enemies.length; n++) {
+                var obj1 = this.player.arrows[i];
+                var obj2 = this.enemies[n];
+                if (obj1 != null && obj2 != null) {
+                    if (Util.checkCollision(obj1, obj2)) {
+                        this.enemies[n].health -= this.player.damage;
+                        if (this.enemies[n].health < 1) {
+                            this.enemies[n].div.remove();
+                            var e = this.enemies.indexOf(this.enemies[n]);
+                            if (i != -1) {
+                                this.enemies.splice(e, 1);
+                            }
+                        }
+                        this.player.arrows[i].div.remove();
+                        var s = this.player.arrows.indexOf(this.player.arrows[i]);
+                        if (i != -1) {
+                            this.player.arrows.splice(s, 1);
+                        }
+                    }
                 }
             }
         }
@@ -236,7 +266,6 @@ var MoveRight = (function () {
     };
     MoveRight.prototype.onFire = function () {
         this.timer++;
-        console.log(this.timer);
         if (this.timer >= this.cooldown) {
             this.timer = 0;
             this.player.arrows.push(new Arrow(this.player.x + this.player.width / 2 - 2, this.player.y - this.player.height, this.player.shootingSpeed));
@@ -262,6 +291,7 @@ var Player = (function (_super) {
         this.speed = 5;
         this.shootingSpeed = 10;
         this.arrows = [];
+        this.damage = 10;
         this.width = 32;
         this.height = 32;
         var container = document.getElementById("container");
@@ -291,15 +321,4 @@ var Player = (function (_super) {
     };
     return Player;
 }(Entity));
-var Util = (function () {
-    function Util() {
-    }
-    Util.checkCollision = function (go1, go2) {
-        return (go1.x < go2.x + go2.width &&
-            go1.x + go1.width > go2.x &&
-            go1.y < go2.y + go2.height &&
-            go1.height + go1.y > go2.y);
-    };
-    return Util;
-}());
 //# sourceMappingURL=main.js.map

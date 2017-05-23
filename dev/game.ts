@@ -1,5 +1,7 @@
 /// <reference path="arrow.ts" />
 /// <reference path="enemy.ts" />
+/// <reference path="util.ts" />
+
 
 class Game {
     public static instance:Game;
@@ -58,13 +60,6 @@ class Game {
             this.player.arrows[i].update();
             this.player.arrows[i].draw();
 
-            for(let n = 0; n < this.enemies.length; n++){
-                if (Util.checkCollision(this.player.arrows[i],this.enemies[n])){
-                    this.enemies[n].health -= this.player.damage;
-                    console.log(this.enemies[n].health);
-                }
-            }
-
             //check if arrow is out of the screen
             if(this.player.arrows[i].y < -32){
                 //remove the arrow
@@ -72,6 +67,34 @@ class Game {
                 let s : number = this.player.arrows.indexOf(this.player.arrows[i]);
                 if(i != -1){
                     this.player.arrows.splice(s,1);
+                }
+            }
+
+            for(let n = 0; n < this.enemies.length; n++){
+                let obj1 = this.player.arrows[i];
+                let obj2 = this.enemies[n];
+
+                //check if the arrow still exists
+                if (obj1 != null && obj2 != null){
+                    if (Util.checkCollision(obj1,obj2)){
+                        this.enemies[n].health -= this.player.damage;
+
+                        //remove the enemy
+                        if(this.enemies[n].health < 1){
+                            this.enemies[n].div.remove();
+                            let e : number = this.enemies.indexOf(this.enemies[n]);
+                            if(i != -1){
+                                this.enemies.splice(e,1);
+                            }
+                        }
+
+                        //remove the arrow
+                        this.player.arrows[i].div.remove();
+                        let s : number = this.player.arrows.indexOf(this.player.arrows[i]);
+                        if(i != -1){
+                            this.player.arrows.splice(s,1);
+                        }
+                    }
                 }
             }
             

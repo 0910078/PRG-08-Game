@@ -11,6 +11,9 @@ class Arrow extends GameObject{
         this.x = x;
         this.y = y;
 
+        this.width = 4;
+        this.height = 32;
+
         this.shootingSpeed = s;
 
         let container: HTMLElement = document.getElementById("container");
