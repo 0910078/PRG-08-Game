@@ -14,7 +14,7 @@ class Firing implements PlayerState{
         this.height = 32;
     }
 
-    action(){
+    public action(){
         this.timer++;
 
         if (this.timer >= this.cooldown){
@@ -29,29 +29,6 @@ class Firing implements PlayerState{
                     this.player.shootingSpeed
                 )
             );
-        }
-    }
-
-    onFire(){
-
-    }
-
-    onMoveLeft(){
-        if (this.player.x > 32){
-            this.player.x -= this.player.speed * 2;
-        }    
-    }
-
-    onMoveRight(){
-        if(this.player.x < 736){
-            this.player.x += this.player.speed * 2;
-        }
-    }
-
-    //handle user input for the player
-    onKeyUp(e:KeyboardEvent){
-        if(e.keyCode === 32){
-            this.player.state = new Idle(this.player);
         }
     }
 }
