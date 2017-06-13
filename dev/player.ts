@@ -67,13 +67,13 @@ class Player extends Entity implements Subject {
         }
     }
 
-    onKeyUp(e:KeyboardEvent){
+    public onKeyUp(e:KeyboardEvent){
         this.state = new Idle(this);
         this.stateName = State.IDLE;
     }
 
     //update player behaviour
-    update(){
+    public update(){
         this.state.action();
     }
 
