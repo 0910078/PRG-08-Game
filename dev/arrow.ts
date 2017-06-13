@@ -25,7 +25,7 @@ class Arrow extends GameObject{
     }
 
     //update the position of the arrow
-    update(){
+    public update(){
         this.y -= this.shootingSpeed;
     }
 
