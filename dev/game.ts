@@ -1,6 +1,8 @@
 /// <reference path="arrow.ts" />
 /// <reference path="enemy.ts" />
 /// <reference path="util.ts" />
+/// <reference path="healthbar.ts" />
+
 
 
 class Game {
@@ -18,7 +20,8 @@ class Game {
     private spawnTimer: number;
     private spawnCooldown: number;
 
-    private castle : Castle;
+    public castle : Castle;
+    public healthbar: Healthbar;
 
     public constructor() {
         Game.gameWidth = 800;
@@ -28,6 +31,7 @@ class Game {
         this.spawnCooldown = 300;
 
         this.castle = new Castle(0,536);
+        this.healthbar = new Healthbar(0,0);
 
         this.playerHeight = 32;
         this.playerWidth = 32;
@@ -49,6 +53,13 @@ class Game {
     }
 
     private gameLoop(){
+        this.healthbar.adjustsize(this.castle.health);
+
+        //check if the player has lost
+        if (this.castle.checkHealth() < 1){
+            console.log("gameover!");
+        }
+
         //update player position and behaviour
         this.player.update();
         this.player.draw();
@@ -120,5 +131,11 @@ class Game {
 
 //load
 window.addEventListener("load", function() {
-    Game.getInstance();
+    let btn = document.getElementById("startbutton");
+    TweenLite.to(btn, 3, {x:0,y:300, ease:Bounce.easeOut})
+
+    btn.addEventListener("click", function(){
+        Game.getInstance();
+        btn.remove();
+    })
 });

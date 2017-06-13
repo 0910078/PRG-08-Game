@@ -1,3 +1,4 @@
+/// <reference path="enum.ts" />
 /// <reference path="entity.ts" />
 
 class Player extends Entity {
@@ -34,13 +35,13 @@ class Player extends Entity {
 
     //handle user input for the player
     onKeyDown(e:KeyboardEvent){
-        if(e.keyCode === 37){
+        if(e.keyCode === Key.LEFT){
             this.state.onMoveLeft();
         }
-        if(e.keyCode === 39){
+        if(e.keyCode === Key.RIGHT){
             this.state.onMoveRight();
         }
-        if(e.keyCode === 32){
+        if(e.keyCode === Key.SPACE){
             this.state.onFire();
         }
     }

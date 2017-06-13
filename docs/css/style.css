@@ -14,11 +14,23 @@ body * {
     background-repeat: no-repeat;
 }
 
+
 container {
     width:800px; height:600px;
     left: 50%; top: 50%;
     transform: translate(-50%, -50%);
     overflow:hidden;
+}
+
+startbutton {
+    background-image: url(../images/Start1.png);
+    width:128px; height:64px;
+    left: 336px; top: 0px;
+    overflow:hidden;
+}
+
+startbutton.hover{
+    background-image: url(../images/Start2.png);
 }
 
 grass {
@@ -31,6 +43,14 @@ castle {
     background-image: url(../images/castle_1.png);
     width: 800px;
     height: 64px;
+}
+
+healthbar {
+    background-color: red;
+    top: 10px;
+    left: 10px;
+    width: 250px;
+    height: 20px;
 }
 
 player {

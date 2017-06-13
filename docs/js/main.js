@@ -1,8 +1,3 @@
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
 var GameObject = (function () {
     function GameObject(x, y) {
         this.x = x;
@@ -13,7 +8,13 @@ var GameObject = (function () {
     GameObject.prototype.update = function () {
     };
     return GameObject;
-}());
+})();
+/// <reference path="gameObject.ts" />
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
 var Arrow = (function (_super) {
     __extends(Arrow, _super);
     function Arrow(x, y, s) {
@@ -35,25 +36,35 @@ var Arrow = (function (_super) {
         this.div.style.transform = "translate(" + this.x + "px," + this.y + "px)";
     };
     return Arrow;
-}(GameObject));
+})(GameObject);
+/// <reference path="gameObject.ts" />
 var Castle = (function (_super) {
     __extends(Castle, _super);
     function Castle(x, y) {
         _super.call(this, x, y);
+        this.health = 250;
         var container = document.getElementById("container");
         this.div = document.createElement("castle");
         container.appendChild(this.div);
         this.div.style.transform = "translate(" + this.x + "px," + this.y + "px)";
     }
+    Castle.prototype.takeDamage = function (d) {
+        this.health -= d;
+    };
+    Castle.prototype.checkHealth = function () {
+        return this.health;
+    };
     return Castle;
-}(GameObject));
+})(GameObject);
+/// <reference path="gameObject.ts" />
 var Entity = (function (_super) {
     __extends(Entity, _super);
     function Entity(x, y) {
         _super.call(this, x, y);
     }
     return Entity;
-}(GameObject));
+})(GameObject);
+/// <reference path="entity.ts" />
 var Enemy = (function (_super) {
     __extends(Enemy, _super);
     function Enemy(x, y) {
@@ -63,6 +74,8 @@ var Enemy = (function (_super) {
         this.speed = 2;
         this.damage = 5;
         this.health = 50;
+        this.atktimer = 0;
+        this.game = Game.getInstance();
         this.x = Math.floor((Math.random() * 732) + 32);
         this.y = -32;
         var container = document.getElementById("container");
@@ -82,9 +95,21 @@ var Enemy = (function (_super) {
         this.div.style.transform = "translate(" + this.x + "px," + this.y + "px)";
     };
     Enemy.prototype.attack = function () {
+        this.atktimer = this.atktimer + 1;
+        if (this.atktimer > 60) {
+            this.game.castle.takeDamage(this.damage);
+            this.damage += 1;
+            this.atktimer = 0;
+        }
     };
     return Enemy;
-}(Entity));
+})(Entity);
+var Key;
+(function (Key) {
+    Key[Key["LEFT"] = 37] = "LEFT";
+    Key[Key["RIGHT"] = 39] = "RIGHT";
+    Key[Key["SPACE"] = 32] = "SPACE";
+})(Key || (Key = {}));
 var Firing = (function () {
     function Firing(p) {
         this.player = p;
@@ -118,7 +143,7 @@ var Firing = (function () {
         }
     };
     return Firing;
-}());
+})();
 var Util = (function () {
     function Util() {
     }
@@ -129,7 +154,26 @@ var Util = (function () {
             obj1.height + obj1.y > obj2.y);
     };
     return Util;
-}());
+})();
+/// <reference path="gameObject.ts" />
+var Healthbar = (function (_super) {
+    __extends(Healthbar, _super);
+    function Healthbar(x, y) {
+        _super.call(this, x, y);
+        var container = document.getElementById("container");
+        this.div = document.createElement("healthbar");
+        container.appendChild(this.div);
+        this.div.style.transform = "translate(" + this.x + "px," + this.y + "px)";
+    }
+    Healthbar.prototype.adjustsize = function (h) {
+        this.div.style.width = h + "px";
+    };
+    return Healthbar;
+})(GameObject);
+/// <reference path="arrow.ts" />
+/// <reference path="enemy.ts" />
+/// <reference path="util.ts" />
+/// <reference path="healthbar.ts" />
 var Game = (function () {
     function Game() {
         var _this = this;
@@ -138,6 +182,7 @@ var Game = (function () {
         this.spawnTimer = 0;
         this.spawnCooldown = 300;
         this.castle = new Castle(0, 536);
+        this.healthbar = new Healthbar(0, 0);
         this.playerHeight = 32;
         this.playerWidth = 32;
         this.playerX = Game.gameWidth / 2 - this.playerWidth / 2;
@@ -154,6 +199,10 @@ var Game = (function () {
     };
     Game.prototype.gameLoop = function () {
         var _this = this;
+        this.healthbar.adjustsize(this.castle.health);
+        if (this.castle.checkHealth() < 1) {
+            console.log("gameover!");
+        }
         this.player.update();
         this.player.draw();
         this.spawnTimer++;
@@ -200,9 +249,14 @@ var Game = (function () {
         requestAnimationFrame(function () { return _this.gameLoop(); });
     };
     return Game;
-}());
+})();
 window.addEventListener("load", function () {
-    Game.getInstance();
+    var btn = document.getElementById("startbutton");
+    TweenLite.to(btn, 3, { x: 0, y: 300, ease: Bounce.easeOut });
+    btn.addEventListener("click", function () {
+        Game.getInstance();
+        btn.remove();
+    });
 });
 var Idle = (function () {
     function Idle(p) {
@@ -222,7 +276,7 @@ var Idle = (function () {
     Idle.prototype.onKeyUp = function (e) {
     };
     return Idle;
-}());
+})();
 var MoveLeft = (function () {
     function MoveLeft(p) {
         this.player = p;
@@ -252,7 +306,7 @@ var MoveLeft = (function () {
         }
     };
     return MoveLeft;
-}());
+})();
 var MoveRight = (function () {
     function MoveRight(p) {
         this.player = p;
@@ -282,7 +336,9 @@ var MoveRight = (function () {
         }
     };
     return MoveRight;
-}());
+})();
+/// <reference path="enum.ts" />
+/// <reference path="entity.ts" />
 var Player = (function (_super) {
     __extends(Player, _super);
     function Player(x, y) {
@@ -303,13 +359,13 @@ var Player = (function (_super) {
         this.state = new Idle(this);
     }
     Player.prototype.onKeyDown = function (e) {
-        if (e.keyCode === 37) {
+        if (e.keyCode === Key.LEFT) {
             this.state.onMoveLeft();
         }
-        if (e.keyCode === 39) {
+        if (e.keyCode === Key.RIGHT) {
             this.state.onMoveRight();
         }
-        if (e.keyCode === 32) {
+        if (e.keyCode === Key.SPACE) {
             this.state.onFire();
         }
     };
@@ -320,5 +376,5 @@ var Player = (function (_super) {
         this.div.style.transform = "translate(" + this.x + "px," + this.y + "px)";
     };
     return Player;
-}(Entity));
+})(Entity);
 //# sourceMappingURL=main.js.map
