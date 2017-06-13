@@ -5,24 +5,8 @@ class Idle implements PlayerState{
         this.player = p;
     }
 
-    action(){
-        
-    }
-
-    onFire(){
-        this.player.state = new Firing(this.player);
-    }
-
-    onMoveLeft(){
-        this.player.state = new MoveLeft(this.player);
-    }
-
-    onMoveRight(){
-        this.player.state = new MoveRight(this.player);
-    }
-
-    //handle user input for the player
-    onKeyUp(e:KeyboardEvent){
+    //player won't move
+    public action(){
 
     }
 }
