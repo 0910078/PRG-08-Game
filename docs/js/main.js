@@ -65,6 +65,7 @@ var Entity = (function (_super) {
     return Entity;
 })(GameObject);
 /// <reference path="entity.ts" />
+/// <reference path="observer.ts" />
 var Enemy = (function (_super) {
     __extends(Enemy, _super);
     function Enemy(x, y) {
@@ -76,6 +77,7 @@ var Enemy = (function (_super) {
         this.health = 50;
         this.atktimer = 0;
         this.game = Game.getInstance();
+        this.game.player.subscribe(this);
         this.x = Math.floor((Math.random() * 732) + 32);
         this.y = -32;
         var container = document.getElementById("container");
@@ -102,14 +104,93 @@ var Enemy = (function (_super) {
             this.atktimer = 0;
         }
     };
+    Enemy.prototype.notify = function (poweruptype) {
+        if (poweruptype == "freeze") {
+            for (var i = 0; i < this.game.enemies.length; i++) {
+                this.game.enemies[i].speed = 0;
+            }
+        }
+        if (poweruptype == "nuke") {
+            for (var i = 0; i < this.game.enemies.length; i++) {
+                this.game.enemies[i].health -= 50;
+            }
+        }
+    };
     return Enemy;
 })(Entity);
+/// <reference path="enum.ts" />
+/// <reference path="entity.ts" />
+/// <reference path="observable.ts" />
+var Player = (function (_super) {
+    __extends(Player, _super);
+    function Player(x, y) {
+        var _this = this;
+        _super.call(this, x, y);
+        this.speed = 5;
+        this.shootingSpeed = 10;
+        this.arrows = [];
+        this.damage = 10;
+        this.observers = new Array();
+        this.width = 32;
+        this.height = 32;
+        var container = document.getElementById("container");
+        this.div = document.createElement("player");
+        container.appendChild(this.div);
+        this.callback = function (e) { return _this.onKeyDown(e); };
+        window.addEventListener("keydown", this.callback);
+        window.addEventListener("keyup", function (e) { return _this.onKeyUp(e); });
+        this.state = new Idle(this);
+    }
+    Player.prototype.subscribe = function (object) {
+        this.observers.push(object);
+    };
+    Player.prototype.sendNotification = function (poweruptype) {
+        for (var _i = 0, _a = this.observers; _i < _a.length; _i++) {
+            var o = _a[_i];
+            var p = poweruptype;
+            o.notify(p);
+        }
+    };
+    Player.prototype.onKeyDown = function (e) {
+        if (e.keyCode === Key.LEFT && this.stateName != State.MOVINGLEFT) {
+            this.state = new MoveLeft(this);
+            this.stateName = State.MOVINGLEFT;
+        }
+        if (e.keyCode === Key.RIGHT && this.stateName != State.MOVINGRIGHT) {
+            this.state = new MoveRight(this);
+            this.stateName = State.MOVINGRIGHT;
+        }
+        if (e.keyCode === Key.SPACE && this.stateName != State.FIRING) {
+            this.state = new Firing(this);
+            this.stateName = State.FIRING;
+        }
+    };
+    Player.prototype.onKeyUp = function (e) {
+        this.state = new Idle(this);
+        this.stateName = State.IDLE;
+    };
+    Player.prototype.update = function () {
+        this.state.action();
+    };
+    Player.prototype.draw = function () {
+        this.div.style.transform = "translate(" + this.x + "px," + this.y + "px)";
+    };
+    return Player;
+})(Entity);
+/// <reference path="player.ts" />
 var Key;
 (function (Key) {
     Key[Key["LEFT"] = 37] = "LEFT";
     Key[Key["RIGHT"] = 39] = "RIGHT";
     Key[Key["SPACE"] = 32] = "SPACE";
 })(Key || (Key = {}));
+var State;
+(function (State) {
+    State[State["FIRING"] = 1] = "FIRING";
+    State[State["MOVINGLEFT"] = 2] = "MOVINGLEFT";
+    State[State["MOVINGRIGHT"] = 3] = "MOVINGRIGHT";
+    State[State["IDLE"] = 4] = "IDLE";
+})(State || (State = {}));
 var Firing = (function () {
     function Firing(p) {
         this.player = p;
@@ -119,27 +200,11 @@ var Firing = (function () {
         this.height = 32;
     }
     Firing.prototype.action = function () {
+        console.log(this.timer);
         this.timer++;
         if (this.timer >= this.cooldown) {
             this.timer = 0;
             this.player.arrows.push(new Arrow(this.player.x + this.player.width / 2 - this.width / 2, this.player.y - this.player.height, this.player.shootingSpeed));
-        }
-    };
-    Firing.prototype.onFire = function () {
-    };
-    Firing.prototype.onMoveLeft = function () {
-        if (this.player.x > 32) {
-            this.player.x -= this.player.speed * 2;
-        }
-    };
-    Firing.prototype.onMoveRight = function () {
-        if (this.player.x < 736) {
-            this.player.x += this.player.speed * 2;
-        }
-    };
-    Firing.prototype.onKeyUp = function (e) {
-        if (e.keyCode === 32) {
-            this.player.state = new Idle(this.player);
         }
     };
     return Firing;
@@ -170,10 +235,64 @@ var Healthbar = (function (_super) {
     };
     return Healthbar;
 })(GameObject);
+var PowerUp;
+(function (PowerUp) {
+    var Nuke = (function (_super) {
+        __extends(Nuke, _super);
+        function Nuke(x, y) {
+            _super.call(this, x, y);
+            var random = Math.floor((Math.random() * 700) + 50);
+            this.x = random;
+            this.width = 32;
+            this.height = 32;
+            var container = document.getElementById("container");
+            this.div = document.createElement("nuke");
+            container.appendChild(this.div);
+            this.div.style.transform = "translate(" + this.x + "px," + this.y + "px)";
+        }
+        Nuke.prototype.draw = function () {
+            this.div.style.transform = "translate(" + this.x + "px," + this.y + "px)";
+        };
+        Nuke.prototype.update = function () {
+            this.y += 3;
+            if (this.y > 600) {
+                this.div.remove();
+            }
+        };
+        return Nuke;
+    })(GameObject);
+    PowerUp.Nuke = Nuke;
+    var Freeze = (function (_super) {
+        __extends(Freeze, _super);
+        function Freeze(x, y) {
+            _super.call(this, x, y);
+            var random = Math.floor((Math.random() * 700) + 50);
+            this.x = random;
+            this.width = 32;
+            this.height = 32;
+            var container = document.getElementById("container");
+            this.div = document.createElement("freeze");
+            container.appendChild(this.div);
+            this.div.style.transform = "translate(" + this.x + "px," + this.y + "px)";
+        }
+        Freeze.prototype.draw = function () {
+            this.div.style.transform = "translate(" + this.x + "px," + this.y + "px)";
+        };
+        Freeze.prototype.update = function () {
+            this.y += 3;
+            if (this.y > 600) {
+                this.div.remove();
+            }
+        };
+        return Freeze;
+    })(GameObject);
+    PowerUp.Freeze = Freeze;
+})(PowerUp || (PowerUp = {}));
 /// <reference path="arrow.ts" />
 /// <reference path="enemy.ts" />
 /// <reference path="util.ts" />
 /// <reference path="healthbar.ts" />
+/// <reference path="powerup.ts" />
 var Game = (function () {
     function Game() {
         var _this = this;
@@ -181,6 +300,7 @@ var Game = (function () {
         Game.gameHeigt = 600;
         this.spawnTimer = 0;
         this.spawnCooldown = 300;
+        this.lastpowerup = "freeze";
         this.castle = new Castle(0, 536);
         this.healthbar = new Healthbar(0, 0);
         this.playerHeight = 32;
@@ -201,11 +321,15 @@ var Game = (function () {
         var _this = this;
         this.healthbar.adjustsize(this.castle.health);
         if (this.castle.checkHealth() < 1) {
-            console.log("gameover!");
+            this.gameOver();
         }
         this.player.update();
         this.player.draw();
         this.spawnTimer++;
+        if (this.powerup) {
+            this.powerup.update();
+            this.powerup.draw();
+        }
         for (var i = 0; i < this.player.arrows.length; i++) {
             this.player.arrows[i].update();
             this.player.arrows[i].draw();
@@ -222,13 +346,6 @@ var Game = (function () {
                 if (obj1 != null && obj2 != null) {
                     if (Util.checkCollision(obj1, obj2)) {
                         this.enemies[n].health -= this.player.damage;
-                        if (this.enemies[n].health < 1) {
-                            this.enemies[n].div.remove();
-                            var e = this.enemies.indexOf(this.enemies[n]);
-                            if (i != -1) {
-                                this.enemies.splice(e, 1);
-                            }
-                        }
                         this.player.arrows[i].div.remove();
                         var s = this.player.arrows.indexOf(this.player.arrows[i]);
                         if (i != -1) {
@@ -241,12 +358,43 @@ var Game = (function () {
         for (var i = 0; i < this.enemies.length; i++) {
             this.enemies[i].update();
             this.enemies[i].draw();
+            if (this.enemies[i].health < 1) {
+                this.enemies[i].div.remove();
+                var e = this.enemies.indexOf(this.enemies[i]);
+                if (i != -1) {
+                    this.enemies.splice(e, 1);
+                }
+            }
         }
-        if (this.spawnTimer > this.spawnCooldown) {
+        if (this.spawnTimer % this.spawnCooldown == 0) {
             this.enemies.push(new Enemy(0, 0));
-            this.spawnTimer = 0;
+            if (this.spawnCooldown > 150) {
+                this.spawnCooldown = this.spawnCooldown - 5;
+            }
+        }
+        if (this.spawnTimer % 1200 == 0) {
+            if (this.lastpowerup == "freeze") {
+                this.powerup = new PowerUp.Nuke(400, 0);
+                this.lastpowerup = "nuke";
+                console.log(this.lastpowerup);
+            }
+            else {
+                this.powerup = new PowerUp.Freeze(400, 0);
+                this.lastpowerup = "freeze";
+            }
+        }
+        if (this.powerup != null) {
+            if (Util.checkCollision(this.player, this.powerup)) {
+                this.player.sendNotification(this.lastpowerup);
+                this.powerup.div.remove();
+                this.powerup = null;
+            }
         }
         requestAnimationFrame(function () { return _this.gameLoop(); });
+    };
+    Game.prototype.gameOver = function () {
+        var g = Game.instance;
+        g = null;
     };
     return Game;
 })();
@@ -264,45 +412,15 @@ var Idle = (function () {
     }
     Idle.prototype.action = function () {
     };
-    Idle.prototype.onFire = function () {
-        this.player.state = new Firing(this.player);
-    };
-    Idle.prototype.onMoveLeft = function () {
-        this.player.state = new MoveLeft(this.player);
-    };
-    Idle.prototype.onMoveRight = function () {
-        this.player.state = new MoveRight(this.player);
-    };
-    Idle.prototype.onKeyUp = function (e) {
-    };
     return Idle;
 })();
 var MoveLeft = (function () {
     function MoveLeft(p) {
         this.player = p;
-        this.cooldown = 4;
-        this.timer = 2;
     }
     MoveLeft.prototype.action = function () {
         if (this.player.x > 32) {
             this.player.x -= this.player.speed;
-        }
-    };
-    MoveLeft.prototype.onFire = function () {
-        this.timer++;
-        if (this.timer >= this.cooldown) {
-            this.timer = 0;
-            this.player.arrows.push(new Arrow(this.player.x + this.player.width / 2 - 2, this.player.y - this.player.height, this.player.shootingSpeed));
-        }
-    };
-    MoveLeft.prototype.onMoveLeft = function () {
-    };
-    MoveLeft.prototype.onMoveRight = function () {
-        this.player.state = new MoveRight(this.player);
-    };
-    MoveLeft.prototype.onKeyUp = function (e) {
-        if (e.keyCode === 37) {
-            this.player.state = new Idle(this.player);
         }
     };
     return MoveLeft;
@@ -310,71 +428,12 @@ var MoveLeft = (function () {
 var MoveRight = (function () {
     function MoveRight(p) {
         this.player = p;
-        this.cooldown = 4;
-        this.timer = 2;
     }
     MoveRight.prototype.action = function () {
         if (this.player.x < 736) {
             this.player.x += this.player.speed;
         }
     };
-    MoveRight.prototype.onFire = function () {
-        this.timer++;
-        if (this.timer >= this.cooldown) {
-            this.timer = 0;
-            this.player.arrows.push(new Arrow(this.player.x + this.player.width / 2 - 2, this.player.y - this.player.height, this.player.shootingSpeed));
-        }
-    };
-    MoveRight.prototype.onMoveLeft = function () {
-        this.player.state = new MoveLeft(this.player);
-    };
-    MoveRight.prototype.onMoveRight = function () {
-    };
-    MoveRight.prototype.onKeyUp = function (e) {
-        if (e.keyCode === 39) {
-            this.player.state = new Idle(this.player);
-        }
-    };
     return MoveRight;
 })();
-/// <reference path="enum.ts" />
-/// <reference path="entity.ts" />
-var Player = (function (_super) {
-    __extends(Player, _super);
-    function Player(x, y) {
-        var _this = this;
-        _super.call(this, x, y);
-        this.speed = 5;
-        this.shootingSpeed = 10;
-        this.arrows = [];
-        this.damage = 10;
-        this.width = 32;
-        this.height = 32;
-        var container = document.getElementById("container");
-        this.div = document.createElement("player");
-        container.appendChild(this.div);
-        this.callback = function (e) { return _this.onKeyDown(e); };
-        window.addEventListener("keydown", this.callback);
-        window.addEventListener("keyup", function (e) { return _this.state.onKeyUp(e); });
-        this.state = new Idle(this);
-    }
-    Player.prototype.onKeyDown = function (e) {
-        if (e.keyCode === Key.LEFT) {
-            this.state.onMoveLeft();
-        }
-        if (e.keyCode === Key.RIGHT) {
-            this.state.onMoveRight();
-        }
-        if (e.keyCode === Key.SPACE) {
-            this.state.onFire();
-        }
-    };
-    Player.prototype.update = function () {
-        this.state.action();
-    };
-    Player.prototype.draw = function () {
-        this.div.style.transform = "translate(" + this.x + "px," + this.y + "px)";
-    };
-    return Player;
-})(Entity);
 //# sourceMappingURL=main.js.map

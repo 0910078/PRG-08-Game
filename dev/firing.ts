@@ -15,6 +15,7 @@ class Firing implements PlayerState{
     }
 
     public action(){
+        console.log(this.timer);
         this.timer++;
 
         if (this.timer >= this.cooldown){

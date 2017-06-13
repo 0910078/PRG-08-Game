@@ -29,10 +29,6 @@ startbutton {
     overflow:hidden;
 }
 
-startbutton.hover{
-    background-image: url(../images/Start2.png);
-}
-
 grass {
     background-image: url(../images/map_1.png);
     width: 800px;
@@ -67,6 +63,18 @@ arrow {
 
 blackknight {
     background-image: url(../images/black_knight_default.png);
+    width: 32px;
+    height: 32px;
+}
+
+nuke {
+    background-image: url(../images/nuke.png);
+    width: 32px;
+    height: 32px;
+}
+
+freeze{
+    background-image: url(../images/frost.png);
     width: 32px;
     height: 32px;
 }

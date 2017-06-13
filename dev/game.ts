@@ -2,7 +2,7 @@
 /// <reference path="enemy.ts" />
 /// <reference path="util.ts" />
 /// <reference path="healthbar.ts" />
-
+/// <reference path="powerup.ts" />
 
 
 class Game {
@@ -10,15 +10,17 @@ class Game {
     private static gameWidth: number;
     private static gameHeigt: number;
 
-    private player : Player;
+    public player : Player;
     private playerX: number;
     private playerY: number;
     private playerHeight: number;
     private playerWidth: number;
 
-    private enemies : Array<Enemy>;
+    public enemies : Array<Enemy>;
     private spawnTimer: number;
     private spawnCooldown: number;
+    private powerup: GameObject;
+    private lastpowerup: String;
 
     public castle : Castle;
     public healthbar: Healthbar;
@@ -29,6 +31,7 @@ class Game {
 
         this.spawnTimer = 0;
         this.spawnCooldown = 300;
+        this.lastpowerup = "freeze";
 
         this.castle = new Castle(0,536);
         this.healthbar = new Healthbar(0,0);
@@ -57,7 +60,7 @@ class Game {
 
         //check if the player has lost
         if (this.castle.checkHealth() < 1){
-            console.log("gameover!");
+            this.gameOver();
         }
 
         //update player position and behaviour
@@ -65,6 +68,11 @@ class Game {
         this.player.draw();
 
         this.spawnTimer++;
+
+        if(this.powerup){
+            this.powerup.update();
+            this.powerup.draw();
+        }
 
         //update the position for the arrows
         for(let i = 0; i < this.player.arrows.length; i++){
@@ -90,15 +98,6 @@ class Game {
                     if (Util.checkCollision(obj1,obj2)){
                         this.enemies[n].health -= this.player.damage;
 
-                        //remove the enemy
-                        if(this.enemies[n].health < 1){
-                            this.enemies[n].div.remove();
-                            let e : number = this.enemies.indexOf(this.enemies[n]);
-                            if(i != -1){
-                                this.enemies.splice(e,1);
-                            }
-                        }
-
                         //remove the arrow
                         this.player.arrows[i].div.remove();
                         let s : number = this.player.arrows.indexOf(this.player.arrows[i]);
@@ -113,19 +112,57 @@ class Game {
 
         //update the position of the enemies
         for(let i = 0; i < this.enemies.length; i++){
+            
             this.enemies[i].update();
             this.enemies[i].draw();
+
+            if (this.enemies[i].health < 1){
+                this.enemies[i].div.remove();
+                let e : number = this.enemies.indexOf(this.enemies[i]);
+                if(i != -1){
+                    this.enemies.splice(e,1);
+                }
+            }
         }
 
         //spawn an enemy if timer is above the cooldown delay
-        if (this.spawnTimer > this.spawnCooldown)   {
+        if (this.spawnTimer % this.spawnCooldown == 0)   {
             this.enemies.push(
                 new Enemy(0,0)
             );
-            this.spawnTimer = 0;
+            if (this.spawnCooldown > 150){
+                this.spawnCooldown = this.spawnCooldown - 5;
+            }
+        }
+
+        //spawn a powerup
+        if(this.spawnTimer % 1200 == 0){
+            if (this.lastpowerup == "freeze"){
+                this.powerup = new PowerUp.Nuke(400,0);
+                this.lastpowerup = "nuke";
+                console.log(this.lastpowerup);
+            }
+            else{
+                this.powerup = new PowerUp.Freeze(400,0);
+                this.lastpowerup = "freeze";
+            }
+        }
+
+        if(this.powerup != null){
+            //handle powerup
+            if (Util.checkCollision(this.player, this.powerup)){
+                this.player.sendNotification(this.lastpowerup);
+                this.powerup.div.remove();
+                this.powerup = null;
+            }
         }
 
         requestAnimationFrame(() => this.gameLoop());
+    }
+
+    public gameOver(){
+        let g = Game.instance;
+        g = null;
     }
 } 
 

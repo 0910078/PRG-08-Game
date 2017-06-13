@@ -1,6 +1,8 @@
 /// <reference path="entity.ts" />
+/// <reference path="observer.ts" />
 
-class Enemy extends Entity{
+
+class Enemy extends Entity implements Observer{
 
     private atktimer:number;
     private game:Game;
@@ -17,6 +19,7 @@ class Enemy extends Entity{
 
         this.atktimer = 0;
         this.game = Game.getInstance();
+        this.game.player.subscribe(this);
 
         this.x = Math.floor((Math.random() * 732) + 32);
         this.y = -32;
@@ -56,6 +59,19 @@ class Enemy extends Entity{
 
             //reset the timer
             this.atktimer = 0;
+        }
+    }
+
+    notify(poweruptype: String){
+        if (poweruptype == "freeze"){
+                for(let i = 0; i < this.game.enemies.length; i++){
+                    this.game.enemies[i].speed = 0;
+                }
+        }
+        if (poweruptype == "nuke"){
+                for(let i = 0; i < this.game.enemies.length; i++){
+                    this.game.enemies[i].health -= 50;
+                }
         }
     }
 }
