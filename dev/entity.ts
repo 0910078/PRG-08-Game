@@ -1,6 +1,6 @@
 /// <reference path="gameObject.ts" />
 
-class Entity extends GameObject {
+abstract class Entity extends GameObject {
 
     health:number;
     speed:number;

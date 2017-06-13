@@ -1,3 +1,13 @@
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
 var GameObject = (function () {
     function GameObject(x, y) {
         this.x = x;
@@ -8,26 +18,21 @@ var GameObject = (function () {
     GameObject.prototype.update = function () {
     };
     return GameObject;
-})();
-/// <reference path="gameObject.ts" />
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
+}());
 var Arrow = (function (_super) {
     __extends(Arrow, _super);
     function Arrow(x, y, s) {
-        _super.call(this, x, y);
-        this.x = x;
-        this.y = y;
-        this.width = 4;
-        this.height = 32;
-        this.shootingSpeed = s;
+        var _this = _super.call(this, x, y) || this;
+        _this.x = x;
+        _this.y = y;
+        _this.width = 4;
+        _this.height = 32;
+        _this.shootingSpeed = s;
         var container = document.getElementById("container");
-        this.div = document.createElement("arrow");
-        container.appendChild(this.div);
-        this.div.style.transform = "translate(" + this.x + "px," + this.y + "px)";
+        _this.div = document.createElement("arrow");
+        container.appendChild(_this.div);
+        _this.div.style.transform = "translate(" + _this.x + "px," + _this.y + "px)";
+        return _this;
     }
     Arrow.prototype.update = function () {
         this.y -= this.shootingSpeed;
@@ -36,17 +41,17 @@ var Arrow = (function (_super) {
         this.div.style.transform = "translate(" + this.x + "px," + this.y + "px)";
     };
     return Arrow;
-})(GameObject);
-/// <reference path="gameObject.ts" />
+}(GameObject));
 var Castle = (function (_super) {
     __extends(Castle, _super);
     function Castle(x, y) {
-        _super.call(this, x, y);
-        this.health = 250;
+        var _this = _super.call(this, x, y) || this;
+        _this.health = 250;
         var container = document.getElementById("container");
-        this.div = document.createElement("castle");
-        container.appendChild(this.div);
-        this.div.style.transform = "translate(" + this.x + "px," + this.y + "px)";
+        _this.div = document.createElement("castle");
+        container.appendChild(_this.div);
+        _this.div.style.transform = "translate(" + _this.x + "px," + _this.y + "px)";
+        return _this;
     }
     Castle.prototype.takeDamage = function (d) {
         this.health -= d;
@@ -55,35 +60,33 @@ var Castle = (function (_super) {
         return this.health;
     };
     return Castle;
-})(GameObject);
-/// <reference path="gameObject.ts" />
+}(GameObject));
 var Entity = (function (_super) {
     __extends(Entity, _super);
     function Entity(x, y) {
-        _super.call(this, x, y);
+        return _super.call(this, x, y) || this;
     }
     return Entity;
-})(GameObject);
-/// <reference path="entity.ts" />
-/// <reference path="observer.ts" />
+}(GameObject));
 var Enemy = (function (_super) {
     __extends(Enemy, _super);
     function Enemy(x, y) {
-        _super.call(this, x, y);
-        this.width = 32;
-        this.height = 32;
-        this.speed = 2;
-        this.damage = 5;
-        this.health = 50;
-        this.atktimer = 0;
-        this.game = Game.getInstance();
-        this.game.player.subscribe(this);
-        this.x = Math.floor((Math.random() * 732) + 32);
-        this.y = -32;
+        var _this = _super.call(this, x, y) || this;
+        _this.width = 32;
+        _this.height = 32;
+        _this.speed = 2;
+        _this.damage = 5;
+        _this.health = 50;
+        _this.atktimer = 0;
+        _this.game = Game.getInstance();
+        _this.game.player.subscribe(_this);
+        _this.x = Math.floor((Math.random() * 732) + 32);
+        _this.y = -32;
         var container = document.getElementById("container");
-        this.div = document.createElement("blackknight");
-        container.appendChild(this.div);
-        this.div.style.transform = "translate(" + this.x + "px," + this.y + "px)";
+        _this.div = document.createElement("blackknight");
+        container.appendChild(_this.div);
+        _this.div.style.transform = "translate(" + _this.x + "px," + _this.y + "px)";
+        return _this;
     }
     Enemy.prototype.update = function () {
         if (this.y < 534) {
@@ -117,29 +120,26 @@ var Enemy = (function (_super) {
         }
     };
     return Enemy;
-})(Entity);
-/// <reference path="enum.ts" />
-/// <reference path="entity.ts" />
-/// <reference path="observable.ts" />
+}(Entity));
 var Player = (function (_super) {
     __extends(Player, _super);
     function Player(x, y) {
-        var _this = this;
-        _super.call(this, x, y);
-        this.speed = 5;
-        this.shootingSpeed = 10;
-        this.arrows = [];
-        this.damage = 10;
-        this.observers = new Array();
-        this.width = 32;
-        this.height = 32;
+        var _this = _super.call(this, x, y) || this;
+        _this.speed = 5;
+        _this.shootingSpeed = 10;
+        _this.arrows = [];
+        _this.damage = 10;
+        _this.observers = new Array();
+        _this.width = 32;
+        _this.height = 32;
         var container = document.getElementById("container");
-        this.div = document.createElement("player");
-        container.appendChild(this.div);
-        this.callback = function (e) { return _this.onKeyDown(e); };
-        window.addEventListener("keydown", this.callback);
+        _this.div = document.createElement("player");
+        container.appendChild(_this.div);
+        _this.callback = function (e) { return _this.onKeyDown(e); };
+        window.addEventListener("keydown", _this.callback);
         window.addEventListener("keyup", function (e) { return _this.onKeyUp(e); });
-        this.state = new Idle(this);
+        _this.state = new Idle(_this);
+        return _this;
     }
     Player.prototype.subscribe = function (object) {
         this.observers.push(object);
@@ -176,8 +176,7 @@ var Player = (function (_super) {
         this.div.style.transform = "translate(" + this.x + "px," + this.y + "px)";
     };
     return Player;
-})(Entity);
-/// <reference path="player.ts" />
+}(Entity));
 var Key;
 (function (Key) {
     Key[Key["LEFT"] = 37] = "LEFT";
@@ -208,7 +207,7 @@ var Firing = (function () {
         }
     };
     return Firing;
-})();
+}());
 var Util = (function () {
     function Util() {
     }
@@ -219,36 +218,37 @@ var Util = (function () {
             obj1.height + obj1.y > obj2.y);
     };
     return Util;
-})();
-/// <reference path="gameObject.ts" />
+}());
 var Healthbar = (function (_super) {
     __extends(Healthbar, _super);
     function Healthbar(x, y) {
-        _super.call(this, x, y);
+        var _this = _super.call(this, x, y) || this;
         var container = document.getElementById("container");
-        this.div = document.createElement("healthbar");
-        container.appendChild(this.div);
-        this.div.style.transform = "translate(" + this.x + "px," + this.y + "px)";
+        _this.div = document.createElement("healthbar");
+        container.appendChild(_this.div);
+        _this.div.style.transform = "translate(" + _this.x + "px," + _this.y + "px)";
+        return _this;
     }
     Healthbar.prototype.adjustsize = function (h) {
         this.div.style.width = h + "px";
     };
     return Healthbar;
-})(GameObject);
+}(GameObject));
 var PowerUp;
 (function (PowerUp) {
     var Nuke = (function (_super) {
         __extends(Nuke, _super);
         function Nuke(x, y) {
-            _super.call(this, x, y);
+            var _this = _super.call(this, x, y) || this;
             var random = Math.floor((Math.random() * 700) + 50);
-            this.x = random;
-            this.width = 32;
-            this.height = 32;
+            _this.x = random;
+            _this.width = 32;
+            _this.height = 32;
             var container = document.getElementById("container");
-            this.div = document.createElement("nuke");
-            container.appendChild(this.div);
-            this.div.style.transform = "translate(" + this.x + "px," + this.y + "px)";
+            _this.div = document.createElement("nuke");
+            container.appendChild(_this.div);
+            _this.div.style.transform = "translate(" + _this.x + "px," + _this.y + "px)";
+            return _this;
         }
         Nuke.prototype.draw = function () {
             this.div.style.transform = "translate(" + this.x + "px," + this.y + "px)";
@@ -260,20 +260,21 @@ var PowerUp;
             }
         };
         return Nuke;
-    })(GameObject);
+    }(GameObject));
     PowerUp.Nuke = Nuke;
     var Freeze = (function (_super) {
         __extends(Freeze, _super);
         function Freeze(x, y) {
-            _super.call(this, x, y);
+            var _this = _super.call(this, x, y) || this;
             var random = Math.floor((Math.random() * 700) + 50);
-            this.x = random;
-            this.width = 32;
-            this.height = 32;
+            _this.x = random;
+            _this.width = 32;
+            _this.height = 32;
             var container = document.getElementById("container");
-            this.div = document.createElement("freeze");
-            container.appendChild(this.div);
-            this.div.style.transform = "translate(" + this.x + "px," + this.y + "px)";
+            _this.div = document.createElement("freeze");
+            container.appendChild(_this.div);
+            _this.div.style.transform = "translate(" + _this.x + "px," + _this.y + "px)";
+            return _this;
         }
         Freeze.prototype.draw = function () {
             this.div.style.transform = "translate(" + this.x + "px," + this.y + "px)";
@@ -285,14 +286,9 @@ var PowerUp;
             }
         };
         return Freeze;
-    })(GameObject);
+    }(GameObject));
     PowerUp.Freeze = Freeze;
 })(PowerUp || (PowerUp = {}));
-/// <reference path="arrow.ts" />
-/// <reference path="enemy.ts" />
-/// <reference path="util.ts" />
-/// <reference path="healthbar.ts" />
-/// <reference path="powerup.ts" />
 var Game = (function () {
     function Game() {
         var _this = this;
@@ -397,7 +393,7 @@ var Game = (function () {
         g = null;
     };
     return Game;
-})();
+}());
 window.addEventListener("load", function () {
     var btn = document.getElementById("startbutton");
     TweenLite.to(btn, 3, { x: 0, y: 300, ease: Bounce.easeOut });
@@ -413,7 +409,7 @@ var Idle = (function () {
     Idle.prototype.action = function () {
     };
     return Idle;
-})();
+}());
 var MoveLeft = (function () {
     function MoveLeft(p) {
         this.player = p;
@@ -424,7 +420,7 @@ var MoveLeft = (function () {
         }
     };
     return MoveLeft;
-})();
+}());
 var MoveRight = (function () {
     function MoveRight(p) {
         this.player = p;
@@ -435,5 +431,5 @@ var MoveRight = (function () {
         }
     };
     return MoveRight;
-})();
+}());
 //# sourceMappingURL=main.js.map
