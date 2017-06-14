@@ -148,7 +148,7 @@ class Game {
             }
         }
 
-        if(this.powerup != null){
+        if(this.powerup){
             //handle powerup
             if (Util.checkCollision(this.player, this.powerup)){
                 this.player.sendNotification(this.lastpowerup);

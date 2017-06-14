@@ -54,3 +54,4 @@ powerups in game.ts zijn een gameObject, daarom kunnen ze beiden hun update func
 
 ### Abstract
 Entity is een abstract class, omdat je nooit een instance van entity zelf wil maken
+
